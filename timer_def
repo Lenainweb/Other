@@ -1,0 +1,50 @@
+# Изучаем Python. 4-е издание
+# Марк Лутц
+# Программа для измерения и сравнения скорости работы функций
+
+
+import time, sys
+
+
+# Если Windows использовать функцию определения времени time.clock, иначе функцию time.time 
+if sys.platform[:3] == 'win':
+    timefunc = time.clock
+else:
+    timefunc = time.time
+
+
+# Заглушка: вывод аргументов
+def trace(*args): pass
+
+
+def timer(func, *pargs, **kargs):
+    '''
+    Вызывает и измеряет время работы функции _reps раз,
+    и возвращает общее время, затраченное на все вызовы, 
+    с результатом вызова испытуемой функции
+    '''
+    
+    _reps = kargs.pop(_reps, 1000) # Полученное число повторов или значение по умолчанию
+
+    trace(func, pargs, kargs, _reps)
+    repslist = range(_reps)
+
+    start = timefunc()
+    for i in repslist:
+        ret = func(*pargs, **kargs)
+    elapsed = timefunc() - start
+    return (elapsed, ret)
+
+
+def dest(func, *pargs, **kargs):
+    '''
+    многократно вызывает функцию timer, 
+    возвращает лучший результат из серии
+    '''
+    _reps = kargs.pop(_reps, 50)
+    best = 2 ** 32 
+    for i in range(_reps):
+        (time, ret) = timer(func, *pargs, _reps=1, **kargs)
+        if time < best:
+            best = time
+    return (best, ret)
